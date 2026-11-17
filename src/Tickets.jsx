@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
+import TicketDetail from './TicketDetail'
 
 function Tickets({ session }) {
   const [tickets, setTickets] = useState([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState(null)
+  const [selectedTicket, setSelectedTicket] = useState(null)
 
   async function fetchTickets() {
     const { data, error } = await supabase
@@ -37,6 +39,16 @@ function Tickets({ session }) {
     fetchTickets()
   }
 
+  // If a ticket is selected, show its detail screen instead of the list
+  if (selectedTicket) {
+    return (
+      <TicketDetail
+        ticket={selectedTicket}
+        onBack={() => setSelectedTicket(null)}
+      />
+    )
+  }
+
   return (
     <div>
       <h1>Helpdesk</h1>
@@ -64,10 +76,14 @@ function Tickets({ session }) {
       {error && <p>Something went wrong: {error}</p>}
 
       <h2>Tickets</h2>
+      {tickets.length === 0 && <p>No tickets yet.</p>}
       <ul>
         {tickets.map((ticket) => (
           <li key={ticket.id}>
-            <strong>{ticket.title}</strong> ({ticket.status})
+            <button onClick={() => setSelectedTicket(ticket)}>
+              {ticket.title}
+            </button>{' '}
+            ({ticket.status})
             <p>{ticket.description}</p>
           </li>
         ))}
