@@ -47,3 +47,49 @@
 **What I learned:** "Permission denied" = missing grant. Empty results with no error = usually RLS.
 
 ** Claude helped ALOT.
+
+## What I learned about Supabase Storage — Nov 17, 2026
+
+I added screenshot uploads to my helpdesk tonight. The upload part was
+pretty straightforward, but the security side is where it got interesting.
+Three things clicked for me:
+
+### 1. Public vs. private buckets
+
+Storage is organized into buckets. A **public** bucket means anyone with
+the link can see the file, no login needed. That's fine for stuff like
+product photos or a logo. A **private** bucket means you need permission
+to view anything in it.
+
+I made my `attachments` bucket private because people upload screenshots
+of their problems, and screenshots can have personal info in them
+(emails, account details, billing pages). If I'd made it public, anyone
+who got hold of a link could see someone else's screenshot.
+
+### 2. Why private files need signed URLs
+
+Since the bucket is private, I can't just drop a normal link into an
+`<img>` tag. It won't load. Instead, my app asks Supabase for a
+**signed URL**, which is a temporary link that only works for a set
+amount of time (I used one hour).
+
+The way I think about it: a public link is like leaving the door open.
+A signed URL is like handing someone a key that stops working after an
+hour. Even if the link gets shared, it expires.
+
+### 3. How Storage policies use folder names
+
+This was the part I liked most. Storage uses the same Row Level Security
+I already set up for my tables. I save every file in a folder named after
+the user's ID, like `user-id/ticket-id/screenshot.png`. Then my policy
+just checks: "does the first folder in this path match the person who's
+logged in?" If yes, they can upload or view it. If no, they're blocked.
+
+So the folder structure isn't just for organizing. It's how the security
+works. If I'd saved files with random names and no user folder, the
+policy would have nothing to check against.
+
+**Takeaway:** If someone asks "why can't I see my image?" or "why is my
+upload failing with an RLS error?", the first things I'd check are:
+is the bucket private, are they using a signed URL, and does the file
+path start with their user ID?

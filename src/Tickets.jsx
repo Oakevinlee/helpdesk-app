@@ -8,6 +8,7 @@ function Tickets({ session }) {
   const [description, setDescription] = useState('')
   const [error, setError] = useState(null)
   const [selectedTicket, setSelectedTicket] = useState(null)
+  const [isAgent, setIsAgent] = useState(false)
 
   async function fetchTickets() {
     const { data, error } = await supabase
@@ -21,7 +22,15 @@ function Tickets({ session }) {
 
   useEffect(() => {
     fetchTickets()
-  }, [])
+
+    // Look up whether the logged-in user is an agent
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+      .then(({ data }) => setIsAgent(data?.role === 'agent'))
+  }, [session.user.id])
 
   async function createTicket(e) {
     e.preventDefault()
@@ -44,7 +53,11 @@ function Tickets({ session }) {
     return (
       <TicketDetail
         ticket={selectedTicket}
-        onBack={() => setSelectedTicket(null)}
+        isAgent={isAgent}
+        onBack={() => {
+          setSelectedTicket(null)
+          fetchTickets() // refresh, in case the status changed
+        }}
       />
     )
   }
@@ -53,29 +66,34 @@ function Tickets({ session }) {
     <div>
       <h1>Helpdesk</h1>
       <p>
-        Logged in as {session.user.email}{' '}
+        Logged in as {session.user.email}
+        {isAgent && ' (Support agent)'}{' '}
         <button onClick={() => supabase.auth.signOut()}>Log out</button>
       </p>
 
-      <h2>New ticket</h2>
-      <form onSubmit={createTicket}>
-        <input
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Describe the problem"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button type="submit">Submit ticket</button>
-      </form>
+      {!isAgent && (
+        <>
+          <h2>New ticket</h2>
+          <form onSubmit={createTicket}>
+            <input
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+            <textarea
+              placeholder="Describe the problem"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <button type="submit">Submit ticket</button>
+          </form>
+        </>
+      )}
 
       {error && <p>Something went wrong: {error}</p>}
 
-      <h2>Tickets</h2>
+      <h2>{isAgent ? 'All tickets' : 'My tickets'}</h2>
       {tickets.length === 0 && <p>No tickets yet.</p>}
       <ul>
         {tickets.map((ticket) => (
