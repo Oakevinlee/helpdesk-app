@@ -93,3 +93,39 @@ policy would have nothing to check against.
 upload failing with an RLS error?", the first things I'd check are:
 is the bucket private, are they using a signed URL, and does the file
 path start with their user ID?
+
+## "Success" but nothing changed — Nov 17, 2026
+
+**What happened:** While building the agent role, I learned that when
+Row Level Security blocks an update or delete, Supabase doesn't throw an
+error. It just updates nothing and acts like everything went fine. Zero
+rows changed, no warning.
+
+**Why that's sneaky:** If you're only checking for errors, you'd think it
+worked. A customer would click "save," see no error, and then wonder why
+nothing changed. Honestly, if I hadn't been told about this, I would have
+spent a long time staring at my code thinking it was broken.
+
+**How I handled it:** I added `.select()` to the end of my update so
+Supabase sends back the rows it actually changed. If that comes back
+empty, I know RLS blocked it, and I show a clear message instead of
+pretending it worked.
+
+**Takeaway:** If someone writes in saying "my update says success but
+nothing changed," my first question is whether RLS is blocking it. Check
+the policies, and check whether the update returns any rows.
+
+---
+
+## Milestone: the helpdesk is feature-complete — Nov 17, 2026
+
+As of tonight my app has everything I set out to build:
+- A Postgres database with tickets and replies
+- Sign up and login with Supabase Auth
+- Row Level Security so customers only see their own stuff
+- Live replies with Realtime
+- Screenshot uploads with Storage
+- A support agent role that can see every ticket and change its status
+
+Next up is polish: making it look decent, putting it online so other
+people can use it, and writing a README that explains what I built.
