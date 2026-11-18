@@ -5,8 +5,8 @@
 A small customer support helpdesk where customers submit tickets, attach screenshots, and chat with support agents in real time. I built it to learn Supabase from the ground up, and to understand the kinds of problems developers run into when they use it.
 
 > **Demo accounts**
-> - Customer: `TEST1234@TEST.COM` / `TESTTEST`
-> - Support agent: `AGENT@TEST.COM` / `TESTTEST`
+> - Customer: `test1234@test.com` / `testtest`
+> - Support agent: `agent@test.com` / `testtest`
 >
 > Try logging in as each one in separate windows (one normal, one Incognito) to see how the same app shows different data to different users.
 
