@@ -129,3 +129,30 @@ As of tonight my app has everything I set out to build:
 
 Next up is polish: making it look decent, putting it online so other
 people can use it, and writing a README that explains what I built.
+
+## "It works on my computer but not on the live site" — Nov 17, 2026
+
+**What happened:** I added live status updates to my tickets, tested it,
+and it still wasn't updating on the live site. The customer kept seeing
+"open" even after the agent changed it to "closed."
+
+**What I thought at first:** That my Realtime code was broken.
+
+**Actual cause:** The code was fine. I just never pushed it. I checked my
+Vercel dashboard, and the live site was still running my "Add helpdesk
+styling" commit from 30+ minutes earlier. Vercel only updates when I push
+to GitHub, so it had no idea my new code existed.
+
+**Fix:** Committed and pushed, waited for the new deployment to say
+"Ready," then hard refreshed both windows (Cmd+Shift+R). A page that's
+already open keeps running the old code until you reload it.
+
+**Takeaway:** If someone says "my fix works locally but not in
+production," the first thing I'd check is which commit is actually
+deployed. Moast likely, the code never made it there, or the
+browser is still holding onto the old version. 
+
+**Side note:** Vercel suggested turning on two-factor authentication.
+Since my account can now push code live to the internet, I turned it on
+for both Vercel and GitHub. If someone got into either account, they
+could change my live site.
