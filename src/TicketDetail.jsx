@@ -43,6 +43,16 @@ function TicketDetail({ ticket, isAgent, onBack }) {
         },
         (payload) => addMessage(payload.new)
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'tickets',
+          filter: `id=eq.${ticket.id}`,
+        },
+        (payload) => setStatus(payload.new.status)
+      )
       .subscribe()
 
     return () => {

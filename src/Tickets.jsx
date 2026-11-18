@@ -30,6 +30,20 @@ function Tickets({ session }) {
       .eq('id', session.user.id)
       .single()
       .then(({ data }) => setIsAgent(data?.role === 'agent'))
+
+    // Live updates: whenever a ticket is created or changed, reload the list
+    const channel = supabase
+      .channel('tickets-list')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tickets' },
+        () => fetchTickets()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [session.user.id])
 
   async function createTicket(e) {
@@ -56,7 +70,7 @@ function Tickets({ session }) {
         isAgent={isAgent}
         onBack={() => {
           setSelectedTicket(null)
-          fetchTickets() // refresh, in case the status changed
+          fetchTickets()
         }}
       />
     )
