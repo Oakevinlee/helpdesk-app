@@ -115,7 +115,7 @@ A few highlights:
    VITE_SUPABASE_URL=
    VITE_SUPABASE_PUBLISHABLE_KEY=
    ```
- 4. In the Supabase **SQL Editor**, paste and run [`supabase/setup.sql`](./supabase/setup.sql) once. It creates the tables, security policies, storage bucket, and Realtime setup.
+4. In the Supabase **SQL Editor**, paste and run [`supabase/setup.sql`](./supabase/setup.sql) once. It creates the tables, security policies, storage bucket, and Realtime setup.
 5. Start the app:
    ```bash
    npm run dev
